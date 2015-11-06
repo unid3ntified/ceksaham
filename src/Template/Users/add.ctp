@@ -11,7 +11,7 @@
         <?php
             echo $this->Form->input('email');
             echo $this->Form->input('password');
-            echo $this->Form->input('reset_token');
+            //echo $this->Form->input('reset_token');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

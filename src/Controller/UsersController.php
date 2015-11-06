@@ -34,7 +34,11 @@ class UsersController extends AppController
         $user = $this->Users->get($id, [
             'contain' => []
         ]);
+        $right = $this->loadModel('UserRights')->get($id, [
+            'contain' => []
+        ]);
         $this->set('user', $user);
+        $this->set('right', $right);
         $this->set('_serialize', ['user']);
     }
 
@@ -49,6 +53,7 @@ class UsersController extends AppController
         if ($this->request->is('post')) {
             $user = $this->Users->patchEntity($user, $this->request->data);
             if ($this->Users->save($user)) {
+
                 $this->Flash->success(__('The user has been saved.'));
                 return $this->redirect(['action' => 'index']);
             } else {

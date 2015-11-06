@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 06, 2015 at 09:42 PM
+-- Generation Time: Nov 07, 2015 at 12:43 AM
 -- Server version: 5.6.21
 -- PHP Version: 5.6.3
 
@@ -196,14 +196,15 @@ CREATE TABLE IF NOT EXISTS `users` (
   `reset_token` varchar(255) DEFAULT NULL,
   `created` datetime DEFAULT NULL,
   `modified` datetime DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `email`, `password`, `reset_token`, `created`, `modified`) VALUES
-(2, 'admin@coba.tes', '$2y$10$THf2XvSQjhBC8uJ9WIUQAeR4kK.0/Vr7/NKRkaBdyX7j6ol8R1Jzm', '', '2015-11-06 13:41:19', '2015-11-06 13:41:19');
+(2, 'admin@coba.tes', '$2y$10$THf2XvSQjhBC8uJ9WIUQAeR4kK.0/Vr7/NKRkaBdyX7j6ol8R1Jzm', '', '2015-11-06 13:41:19', '2015-11-06 13:41:19'),
+(3, 'admin2@coba.tes', '$2y$10$ExySFJb.lRMJEgeJf599peMsv7LxdoKDtCE.A8vvtegHnP2xfHLry', NULL, '2015-11-06 17:32:42', '2015-11-06 17:32:42');
 
 -- --------------------------------------------------------
 
@@ -254,7 +255,23 @@ ALTER TABLE `user_rights`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `financial_statement`
+--
+ALTER TABLE `financial_statement`
+ADD CONSTRAINT `financial_statement_ibfk_1` FOREIGN KEY (`emiten_code`) REFERENCES `emiten` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `user_rights`
+--
+ALTER TABLE `user_rights`
+ADD CONSTRAINT `user_rights_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
