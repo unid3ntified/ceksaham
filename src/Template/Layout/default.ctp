@@ -35,20 +35,29 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
 </head>
 <body>
     <nav class="top-bar expanded" data-topbar role="navigation">
-        <ul class="title-area large-3 medium-4 columns">
-            <li class="name">
-            <?php 
-                if (is_null($this->request->session()->read('Auth.User.id'))) 
-                    echo "<h1>".$this->Html->link("Login", "/users/login")."</h1>";
-                else 
-                    echo "<h1>".$this->Html->link("Logout"." (".$this->request->session()->read('Auth.User.email').")", "/users/logout")."</h1>";
-            ?>
-            </li>
-        </ul>
         <section class="top-bar-section">
-            <ul class="right">              
+            <ul class="left">
+                <li><?= $this->Html->link("Home", "/pages/home") ?></li>          
                 <li><?= $this->Html->link("Emiten", "/emiten") ?></li>
                 <li><?= $this->Html->link("User", "/users") ?></li>
+            </ul>
+        </section>
+        <section class="top-bar-section">
+            <ul class="right">
+                <li class="name">
+                <?php 
+                    if (is_null($this->request->session()->read('Auth.User.id')))
+                        echo "<h1>".$this->Html->link("Signup", "/users/add")."</h1>";
+                ?>
+                </li>
+                <li class="name">
+                <?php 
+                    if (is_null($this->request->session()->read('Auth.User.id')))
+                        echo "<h1>".$this->Html->link("Login", "/users/login")."</h1>";
+                    else 
+                        echo "<h1>".$this->Html->link("Logout"." (".$this->request->session()->read('Auth.User.email').")", "/users/logout")."</h1>";
+                ?>
+                </li>             
             </ul>
         </section>
     </nav>
