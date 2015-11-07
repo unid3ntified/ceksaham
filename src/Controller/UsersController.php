@@ -10,7 +10,6 @@ use App\Controller\AppController;
  */
 class UsersController extends AppController
 {
-
     /**
      * Index method
      *
@@ -18,8 +17,18 @@ class UsersController extends AppController
      */
     public function index()
     {
-        $this->set('users', $this->paginate($this->Users));
-        $this->set('_serialize', ['users']);
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
+            'contain' => []
+        ]);
+        if ($right->fitur1 == 'none')
+        {
+            return $this->redirect('/pages/accessdenied');
+        }
+        else
+        {
+            $this->set('users', $this->paginate($this->Users));
+            $this->set('_serialize', ['users']);
+        }
     }
 
     /**
@@ -31,15 +40,25 @@ class UsersController extends AppController
      */
     public function view($id = null)
     {
-        $user = $this->Users->get($id, [
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
             'contain' => []
         ]);
-        $right = $this->loadModel('UserRights')->get($id, [
-            'contain' => []
-        ]);
-        $this->set('user', $user);
-        $this->set('right', $right);
-        $this->set('_serialize', ['user']);
+        if ($right->fitur1 == 'none')
+        {
+            return $this->redirect('/pages/accessdenied');
+        }
+        else
+        {
+            $user = $this->Users->get($id, [
+                'contain' => []
+            ]);
+            $right = $this->loadModel('UserRights')->get($id, [
+                'contain' => []
+            ]);
+            $this->set('user', $user);
+            $this->set('right', $right);
+            $this->set('_serialize', ['user']);
+        }
     }
 
     /**
@@ -50,10 +69,15 @@ class UsersController extends AppController
     public function add()
     {
         $user = $this->Users->newEntity();
+        $right = $this->loadModel('UserRights')->newEntity();
         if ($this->request->is('post')) {
             $user = $this->Users->patchEntity($user, $this->request->data);
             if ($this->Users->save($user)) {
-
+                $right->user_id = $user->id;
+                $right->fitur1 = 'none';
+                $right->fitur2 = 'read';
+                $right->fitur3 = 'read';
+                $this->loadModel('UserRights')->save($right);
                 $this->Flash->success(__('The user has been saved.'));
                 return $this->redirect(['action' => 'index']);
             } else {
@@ -73,20 +97,35 @@ class UsersController extends AppController
      */
     public function edit($id = null)
     {
-        $user = $this->Users->get($id, [
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
             'contain' => []
         ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->data);
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The user could not be saved. Please, try again.'));
-            }
+        if ($right->fitur1 !== 'write')
+        {
+            return $this->redirect('/pages/accessdenied');
         }
-        $this->set(compact('user'));
-        $this->set('_serialize', ['user']);
+        else
+        {
+            $user = $this->Users->get($id, [
+                'contain' => []
+            ]);
+            $userRight = $this->loadModel('UserRights')->get($id, [
+                'contain' => []
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $userRight = $this->loadModel('UserRights')->patchEntity($userRight, $this->request->data);
+                if ($this->loadModel('UserRights')->save($userRight)) {
+                    $this->Flash->success(__('The user right has been saved.'));
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->Flash->error(__('The user right could not be saved. Please, try again.'));
+                }
+            }
+            $users = $this->loadModel('UserRights')->Users->find('list', ['limit' => 200]);
+            $this->set(compact('userRight', 'users'));
+            $this->set(compact('user'));
+            $this->set('_serialize', ['userRight']);
+        }
     }
 
     /**
@@ -98,14 +137,24 @@ class UsersController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $user = $this->Users->get($id);
-        if ($this->Users->delete($user)) {
-            $this->Flash->success(__('The user has been deleted.'));
-        } else {
-            $this->Flash->error(__('The user could not be deleted. Please, try again.'));
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
+            'contain' => []
+        ]);
+        if ($right->fitur1 !== 'write')
+        {
+            return $this->redirect('/pages/accessdenied');
         }
-        return $this->redirect(['action' => 'index']);
+        else
+        {
+            $this->request->allowMethod(['post', 'delete']);
+            $user = $this->Users->get($id);
+            if ($this->Users->delete($user)) {
+                $this->Flash->success(__('The user has been deleted.'));
+            } else {
+                $this->Flash->error(__('The user could not be deleted. Please, try again.'));
+            }
+            return $this->redirect(['action' => 'index']);
+        }
     }
 
     public function login()

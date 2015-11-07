@@ -18,8 +18,18 @@ class EmitenController extends AppController
      */
     public function index()
     {
-        $this->set('emiten', $this->paginate($this->Emiten));
-        $this->set('_serialize', ['emiten']);
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
+            'contain' => []
+        ]);
+        if ($right->fitur2 == 'none')
+        {
+            return $this->redirect('/pages/accessdenied');
+        }
+        else
+        {
+            $this->set('emiten', $this->paginate($this->Emiten));
+            $this->set('_serialize', ['emiten']);
+        }
     }
 
     /**
@@ -31,11 +41,21 @@ class EmitenController extends AppController
      */
     public function view($id = null)
     {
-        $emiten = $this->Emiten->get($id, [
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
             'contain' => []
         ]);
-        $this->set('emiten', $emiten);
-        $this->set('_serialize', ['emiten']);
+        if ($right->fitur2 == 'none')
+        {
+            return $this->redirect('/pages/accessdenied');
+        }
+        else
+        {
+            $emiten = $this->Emiten->get($id, [
+                'contain' => []
+            ]);
+            $this->set('emiten', $emiten);
+            $this->set('_serialize', ['emiten']);
+        }
     }
 
     /**
@@ -45,18 +65,28 @@ class EmitenController extends AppController
      */
     public function add()
     {
-        $emiten = $this->Emiten->newEntity();
-        if ($this->request->is('post')) {
-            $emiten = $this->Emiten->patchEntity($emiten, $this->request->data);
-            if ($this->Emiten->save($emiten)) {
-                $this->Flash->success(__('The emiten has been saved.'));
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The emiten could not be saved. Please, try again.'));
-            }
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
+            'contain' => []
+        ]);
+        if ($right->fitur2 !== 'write')
+        {
+            return $this->redirect('/pages/accessdenied');
         }
-        $this->set(compact('emiten'));
-        $this->set('_serialize', ['emiten']);
+        else
+        {
+            $emiten = $this->Emiten->newEntity();
+            if ($this->request->is('post')) {
+                $emiten = $this->Emiten->patchEntity($emiten, $this->request->data);
+                if ($this->Emiten->save($emiten)) {
+                    $this->Flash->success(__('The emiten has been saved.'));
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->Flash->error(__('The emiten could not be saved. Please, try again.'));
+                }
+            }
+            $this->set(compact('emiten'));
+            $this->set('_serialize', ['emiten']);
+        }
     }
 
     /**
@@ -68,20 +98,30 @@ class EmitenController extends AppController
      */
     public function edit($id = null)
     {
-        $emiten = $this->Emiten->get($id, [
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
             'contain' => []
         ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $emiten = $this->Emiten->patchEntity($emiten, $this->request->data);
-            if ($this->Emiten->save($emiten)) {
-                $this->Flash->success(__('The emiten has been saved.'));
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The emiten could not be saved. Please, try again.'));
-            }
+        if ($right->fitur2 !== 'write')
+        {
+            return $this->redirect('/pages/accessdenied');
         }
-        $this->set(compact('emiten'));
-        $this->set('_serialize', ['emiten']);
+        else
+        {
+            $emiten = $this->Emiten->get($id, [
+                'contain' => []
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $emiten = $this->Emiten->patchEntity($emiten, $this->request->data);
+                if ($this->Emiten->save($emiten)) {
+                    $this->Flash->success(__('The emiten has been saved.'));
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->Flash->error(__('The emiten could not be saved. Please, try again.'));
+                }
+            }
+            $this->set(compact('emiten'));
+            $this->set('_serialize', ['emiten']);
+        }
     }
 
     /**
@@ -93,13 +133,23 @@ class EmitenController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $emiten = $this->Emiten->get($id);
-        if ($this->Emiten->delete($emiten)) {
-            $this->Flash->success(__('The emiten has been deleted.'));
-        } else {
-            $this->Flash->error(__('The emiten could not be deleted. Please, try again.'));
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
+            'contain' => []
+        ]);
+        if ($right->fitur2 !== 'write')
+        {
+            return $this->redirect('/pages/accessdenied');
         }
-        return $this->redirect(['action' => 'index']);
+        else
+        {
+            $this->request->allowMethod(['post', 'delete']);
+            $emiten = $this->Emiten->get($id);
+            if ($this->Emiten->delete($emiten)) {
+                $this->Flash->success(__('The emiten has been deleted.'));
+            } else {
+                $this->Flash->error(__('The emiten could not be deleted. Please, try again.'));
+            }
+            return $this->redirect(['action' => 'index']);
+        }
     }
 }

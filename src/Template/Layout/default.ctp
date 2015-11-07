@@ -41,7 +41,7 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
                 if (is_null($this->request->session()->read('Auth.User.id'))) 
                     echo "<h1>".$this->Html->link("Login", "/users/login")."</h1>";
                 else 
-                    echo "<h1>".$this->Html->link("Logout", "/users/logout")."</h1>";
+                    echo "<h1>".$this->Html->link("Logout"." (".$this->request->session()->read('Auth.User.email').")", "/users/logout")."</h1>";
             ?>
             </li>
         </ul>

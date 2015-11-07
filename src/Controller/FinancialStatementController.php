@@ -18,8 +18,18 @@ class FinancialStatementController extends AppController
      */
     public function index()
     {
-        $this->set('financialStatement', $this->paginate($this->FinancialStatement));
-        $this->set('_serialize', ['financialStatement']);
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
+            'contain' => []
+        ]);
+        if ($right->fitur3 == 'none')
+        {
+            return $this->redirect('/pages/accessdenied');
+        }
+        else
+        {
+            $this->set('financialStatement', $this->paginate($this->FinancialStatement));
+            $this->set('_serialize', ['financialStatement']);
+        }
     }
 
     /**
@@ -31,11 +41,21 @@ class FinancialStatementController extends AppController
      */
     public function view($id = null)
     {
-        $financialStatement = $this->FinancialStatement->get($id, [
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
             'contain' => []
         ]);
-        $this->set('financialStatement', $financialStatement);
-        $this->set('_serialize', ['financialStatement']);
+        if ($right->fitur3 == 'none')
+        {
+            return $this->redirect('/pages/accessdenied');
+        }
+        else
+        {
+            $financialStatement = $this->FinancialStatement->get($id, [
+                'contain' => []
+            ]);
+            $this->set('financialStatement', $financialStatement);
+            $this->set('_serialize', ['financialStatement']);
+        }
     }
 
     /**
@@ -45,18 +65,28 @@ class FinancialStatementController extends AppController
      */
     public function add()
     {
-        $financialStatement = $this->FinancialStatement->newEntity();
-        if ($this->request->is('post')) {
-            $financialStatement = $this->FinancialStatement->patchEntity($financialStatement, $this->request->data);
-            if ($this->FinancialStatement->save($financialStatement)) {
-                $this->Flash->success(__('The financial statement has been saved.'));
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The financial statement could not be saved. Please, try again.'));
-            }
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
+            'contain' => []
+        ]);
+        if ($right->fitur3 !== 'write')
+        {
+            return $this->redirect('/pages/accessdenied');
         }
-        $this->set(compact('financialStatement'));
-        $this->set('_serialize', ['financialStatement']);
+        else
+        {
+            $financialStatement = $this->FinancialStatement->newEntity();
+            if ($this->request->is('post')) {
+                $financialStatement = $this->FinancialStatement->patchEntity($financialStatement, $this->request->data);
+                if ($this->FinancialStatement->save($financialStatement)) {
+                    $this->Flash->success(__('The financial statement has been saved.'));
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->Flash->error(__('The financial statement could not be saved. Please, try again.'));
+                }
+            }
+            $this->set(compact('financialStatement'));
+            $this->set('_serialize', ['financialStatement']);
+        }
     }
 
     /**
@@ -68,20 +98,30 @@ class FinancialStatementController extends AppController
      */
     public function edit($id = null)
     {
-        $financialStatement = $this->FinancialStatement->get($id, [
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
             'contain' => []
         ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $financialStatement = $this->FinancialStatement->patchEntity($financialStatement, $this->request->data);
-            if ($this->FinancialStatement->save($financialStatement)) {
-                $this->Flash->success(__('The financial statement has been saved.'));
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The financial statement could not be saved. Please, try again.'));
-            }
+        if ($right->fitur3 !== 'write')
+        {
+            return $this->redirect('/pages/accessdenied');
         }
-        $this->set(compact('financialStatement'));
-        $this->set('_serialize', ['financialStatement']);
+        else
+        {
+            $financialStatement = $this->FinancialStatement->get($id, [
+                'contain' => []
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $financialStatement = $this->FinancialStatement->patchEntity($financialStatement, $this->request->data);
+                if ($this->FinancialStatement->save($financialStatement)) {
+                    $this->Flash->success(__('The financial statement has been saved.'));
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->Flash->error(__('The financial statement could not be saved. Please, try again.'));
+                }
+            }
+            $this->set(compact('financialStatement'));
+            $this->set('_serialize', ['financialStatement']);
+        }
     }
 
     /**
@@ -93,13 +133,23 @@ class FinancialStatementController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $financialStatement = $this->FinancialStatement->get($id);
-        if ($this->FinancialStatement->delete($financialStatement)) {
-            $this->Flash->success(__('The financial statement has been deleted.'));
-        } else {
-            $this->Flash->error(__('The financial statement could not be deleted. Please, try again.'));
+        $right = $right = $this->loadModel('UserRights')->get($this->Auth->user('id'), [
+            'contain' => []
+        ]);
+        if ($right->fitur3 !== 'write')
+        {
+            return $this->redirect('/pages/accessdenied');
         }
-        return $this->redirect(['action' => 'index']);
+        else
+        {
+            $this->request->allowMethod(['post', 'delete']);
+            $financialStatement = $this->FinancialStatement->get($id);
+            if ($this->FinancialStatement->delete($financialStatement)) {
+                $this->Flash->success(__('The financial statement has been deleted.'));
+            } else {
+                $this->Flash->error(__('The financial statement could not be deleted. Please, try again.'));
+            }
+            return $this->redirect(['action' => 'index']);
+        }
     }
 }
